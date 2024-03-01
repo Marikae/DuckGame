@@ -3,7 +3,6 @@ import sys
 from tkinter import font
 import pygame
 import random
-
 import pygame_gui
 
 pygame.init()
@@ -26,7 +25,8 @@ chickWidht = 50
 chickHeight = 50
 
 time = 1
-timeStep = 110
+
+timeStep = 150 #speed of the game
 speed = 1
 run = True
 directionPlayer = "right"
@@ -36,7 +36,7 @@ inBorder = False
 borderHitted = "left"
 previousDirection = "right"
 #variabili verme
-counterWormEaten = 0
+counterWormEaten = 0 #worm eaten by the player
 wormPresence = False
 changeWorm = True
 score = 0
@@ -49,43 +49,43 @@ gapBot = 4
 
 #schermo
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) #creazione finestra di gioco
-background = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\grassdc.png")  #immagine di sfondo
+background = pygame.image.load("Duck\\img\\grassdc.png")  #immagine di sfondo
 background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 #giocatore
 player = pygame.Rect([0, 0, TAIL_SIZE - 2, TAIL_SIZE - 2]) #creazione rettangolino giocatore
 
 #immagine giocatore destra
-playerImgRight = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\duckRight.png")  #immagine del giocatore
+playerImgRight = pygame.image.load("Duck\\img\\duckRight.png")  #immagine del giocatore
 playerImgRight = pygame.transform.scale(playerImgRight, (playerWidht, playerHeight))
 
 #immagine giocatore sinistra
-playerImgLeft = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\duckLeft.png")  
+playerImgLeft = pygame.image.load("Duck\\img\\duckLeft.png")  
 playerImgLeft = pygame.transform.scale(playerImgLeft, (playerWidht, playerHeight))
 
 #immagine giocatore su
-playerImgUp = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\duckUp.png")  
+playerImgUp = pygame.image.load("Duck\\img\\duckUp.png")  
 playerImgUp = pygame.transform.scale(playerImgUp, (playerWidht, playerHeight))
 
 #immagine giocatore giu
-playerImgDown = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\duckDown.png")  
+playerImgDown = pygame.image.load("Duck\\img\\duckDown.png")  
 playerImgDown = pygame.transform.scale(playerImgDown, (playerWidht, playerHeight))
 
 #vermicello
-wormImg = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\frog.png")  #immagine del verme
+wormImg = pygame.image.load("Duck\\img\\frog.png")  #immagine del verme
 wormImg = pygame.transform.scale(wormImg, (wormWidht, wormHeight))
 
 #pulcino
-chickImgLeft = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\chickLeft.png")  #immagine del pulcino
+chickImgLeft = pygame.image.load("Duck\\img\\chickLeft.png")  #immagine del pulcino
 chickImgLeft = pygame.transform.scale(chickImgLeft, (chickWidht, chickHeight))
 
-chickImgRight = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\chickRight.png")  #immagine del pulcino
+chickImgRight = pygame.image.load("Duck\\img\\chickRight.png")  #immagine del pulcino
 chickImgRight = pygame.transform.scale(chickImgRight, (chickWidht, chickHeight))
 
-chickImgDown = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\chickDown.png")  #immagine del pulcino
+chickImgDown = pygame.image.load("Duck\\img\\chickDown.png")  #immagine del pulcino
 chickImgDown = pygame.transform.scale(chickImgDown, (chickWidht, chickHeight))
 
-chickImgUp = pygame.image.load("C:\\Users\\Utente\\tutorialPython\\pygame\\img\\chickUp.png")  #immagine del pulcino
+chickImgUp = pygame.image.load("Duck\\img\\chickUp.png")  #immagine del pulcino
 chickImgUp = pygame.transform.scale(chickImgUp, (chickWidht, chickHeight))
 
 
@@ -116,6 +116,8 @@ score_text = pygame_gui.elements.UILabel(
     manager = gui_manager,
     container = None,
 )
+
+
 # Variabile per gestire gli stati del gioco
 gameState = "main_menu"
 chick_positions = []  # Salva le posizioni dei pulcini
@@ -144,6 +146,24 @@ def getChickImg(direction):
     elif direction == "down":
         return chickImgDown
 
+def increaseSpeed(): #increase speed of the game by eating worms
+    global timeStep, counterWormEaten
+    if counterWormEaten == 5:
+        timeStep -= 10
+    if counterWormEaten == 10:
+        timeStep -= 10
+    if counterWormEaten == 15:
+        timeStep -= 10
+    if counterWormEaten == 20:
+        timeStep -= 10
+    if counterWormEaten == 25:
+        timeStep -= 10
+    if counterWormEaten == 30:
+        timeStep -= 10
+    if counterWormEaten == 35:
+        timeStep -= 10
+
+
 while run:
 
     key = pygame.key.get_pressed() #prende il tasto premuto
@@ -159,16 +179,16 @@ while run:
                 gameState = "playing"
         gui_manager.process_events(event)
 
-    screen.blit(background, (0, 0)) #colora lo sfondo ad ogni refresh
+    screen.blit(background, (0, 0)) #color the screen
 
     if gameState == "main_menu":
-        # Se siamo nella schermata principale, mostra solo il pulsante "Play"
+        # If we are in main menu, draw the button
         drawButton()
         
     elif gameState == "playing":
         if not paused:
             #---------------------------WORM-------------------------------
-            if wormPresence == False: #se non c'è nessun verme nella mappa
+            if wormPresence == False: #if no worm in map
                 if changeWorm == True:
                     wormX = random.randint(0, SCREEN_WIDTH - wormWidht)
                     wormY = random.randint(0, SCREEN_HEIGHT - wormHeight)
@@ -176,7 +196,8 @@ while run:
                 worm = pygame.Rect((wormX, wormY, wormWidht, wormHeight))
                 screen.blit(wormImg, worm.topleft)
             if player.colliderect(worm):
-                score += 1 #aumenta il punteggio
+                increaseSpeed() #increase speed
+                score += 1 #increase score
                 score_text.set_text(f'Score: {score}')
                 changeWorm = True 
                 counterWormEaten += 1
@@ -223,15 +244,15 @@ while run:
                 elif directionPlayer == "down":
                     playerCoord = (0, TAIL_SIZE)
 
-                # Muovi il giocatore e gestisci la comparsa dal lato opposto se necessario
+                #Muovi il giocatore e gestisci la comparsa dal lato opposto se necessario
                 #player.move_ip(playerCoord)
                 if player.left < 0:
                     player.x = SCREEN_WIDTH
-                elif player.right > SCREEN_WIDTH:
+                elif player.right > SCREEN_WIDTH - 0:
                     player.x = 0 - TAIL_SIZE
                 elif player.top < 0:
                     player.y = SCREEN_HEIGHT
-                elif player.bottom > SCREEN_HEIGHT:
+                elif player.bottom > SCREEN_HEIGHT - 0:
                     player.y = 0 - TAIL_SIZE
 
                 player.move_ip(playerCoord)
